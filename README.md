@@ -1,2 +1,5 @@
 # Boxer
-program that aims to standardize to control VM cli
+
+Boxer is a program that aims to standardize and control VM software that runs on cli, such as VirtualBox and Kvm.
+
+
