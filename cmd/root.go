@@ -14,17 +14,10 @@ var rootCmd = &cobra.Command{
 	Use:   "boxer",
 	Short: "Program that aims to standardize control VM for Sandbox",
 	Long: `
-Usage: boxer [OPTIONS] COMMAND
+Program that aims to standardize control VM for Sandbox.
+Define the cli of the vm product(ex: VirtualBox, kvm... etc) you want to use in a file,
+and simply configure the sandbox control system.
 
-Program that aims to standardize control VM for Sandbox
-
-Common Commands:
-	compose		Configure the VM to use
-
-Global Options:
-	-t,	--toggle		Help message for toggle
-
-Run 'boxer COMMAND --help' for more information on a command.
 	`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
