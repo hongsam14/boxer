@@ -1,4 +1,4 @@
-# If you prefer the allow list template instead of the deny list, see community template:
+#If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-boxer
+*/boxer
 
 # Test binary, built with `go test -c`
 *.test
@@ -19,8 +19,8 @@ boxer
 # vendor/
 
 # Go workspace file
-go.work
-go.work.sum
+*/go.work
+*/go.work.sum
 
 # env file
-.env
+*/.env
