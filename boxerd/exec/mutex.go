@@ -18,6 +18,7 @@ type Cushion struct {
 
 func InitCushion(period uint) *Cushion {
 	newCushion := new(Cushion)
+	newCushion.period = period
 	newCushion.releaseMux = sync.Mutex{}
 	atomic.StoreInt32(&newCushion.IsLocked, 0)
 	atomic.StoreInt32(&newCushion.IsWaiting, 0)
