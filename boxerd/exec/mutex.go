@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Cushion struct {
+type PaddedMutex struct {
 	releaseMux sync.Mutex
 	IsLocked   int32
 	IsWaiting  int32
@@ -16,41 +16,41 @@ type Cushion struct {
 	period uint
 }
 
-func InitCushion(period uint) *Cushion {
-	newCushion := new(Cushion)
-	newCushion.period = period
-	newCushion.releaseMux = sync.Mutex{}
-	atomic.StoreInt32(&newCushion.IsLocked, 0)
-	atomic.StoreInt32(&newCushion.IsWaiting, 0)
-	return newCushion
+func InitPaddedMutex(period uint) *PaddedMutex {
+	newPaddedMux := new(PaddedMutex)
+	newPaddedMux.period = period
+	newPaddedMux.releaseMux = sync.Mutex{}
+	atomic.StoreInt32(&newPaddedMux.IsLocked, 0)
+	atomic.StoreInt32(&newPaddedMux.IsWaiting, 0)
+	return newPaddedMux
 }
 
-func (cushion *Cushion) Lock() {
+func (pMux *PaddedMutex) Lock() {
 	// lock the releaseMux
-	cushion.releaseMux.Lock()
-	atomic.StoreInt32(&cushion.IsLocked, 1)
+	pMux.releaseMux.Lock()
+	atomic.StoreInt32(&pMux.IsLocked, 1)
 }
 
-func (cushion *Cushion) Release() {
-	if atomic.LoadInt32(&cushion.IsLocked) == 0 {
+func (pMux *PaddedMutex) Release() {
+	if atomic.LoadInt32(&pMux.IsLocked) == 0 {
 		panic(error.BoxerError{
 			Code:   error.InvalidOperation,
-			Msg:    "error while cushion.release()",
-			Origin: fmt.Errorf("cushion is released before locked"),
+			Msg:    "error while pMux.release()",
+			Origin: fmt.Errorf("pMux is released before locked"),
 		})
 	}
-	if atomic.LoadInt32(&cushion.IsWaiting) == 1 {
+	if atomic.LoadInt32(&pMux.IsWaiting) == 1 {
 		panic(error.BoxerError{
 			Code:   error.InvalidOperation,
-			Msg:    "error while cushion.release()",
-			Origin: fmt.Errorf("cushion is released while waiting"),
+			Msg:    "error while pMux.release()",
+			Origin: fmt.Errorf("pMux is released while waiting"),
 		})
 	}
-	atomic.StoreInt32(&cushion.IsWaiting, 1)
-	go cushion.timerThread()
+	atomic.StoreInt32(&pMux.IsWaiting, 1)
+	go pMux.timerThread()
 }
 
-func (cuchion *Cushion) timerThread() {
+func (cuchion *PaddedMutex) timerThread() {
 	// wait for the period
 	time.Sleep(time.Duration(cuchion.period) * time.Second)
 

@@ -9,46 +9,46 @@ import (
 	"math/rand"
 )
 
-func TestCushioningSingle(t *testing.T) {
+func TestPaddedMutexingSingle(t *testing.T) {
 	wait_sec := rand.Intn(10)
-	cushion := exec.InitCushion(uint(wait_sec))
-	cushion.Lock()
+	pMux := exec.InitPaddedMutex(uint(wait_sec))
+	pMux.Lock()
 	start := time.Now()
-	cushion.Release()
-	cushion.Lock()
+	pMux.Release()
+	pMux.Lock()
 	elapsed := time.Since(start)
-	cushion.Release()
-	t.Logf("CushionTime: %v Elapsed time: %v\n", wait_sec, elapsed)
+	pMux.Release()
+	t.Logf("PaddedMutexTime: %v Elapsed time: %v\n", wait_sec, elapsed)
 	if elapsed < time.Duration(wait_sec)*time.Second {
-		t.Errorf("Cushion is not waiting for the period")
+		t.Errorf("PaddedMutex is not waiting for the period")
 	}
 }
 
-func TestCushioningMultiple(t *testing.T) {
+func TestPaddedMutexingMultiple(t *testing.T) {
 	wait_sec := rand.Intn(10) + 1
-	cushion := exec.InitCushion(uint(wait_sec))
-	t.Logf("CushionTime: %v\n", wait_sec)
+	pMux := exec.InitPaddedMutex(uint(wait_sec))
+	t.Logf("PaddedMutexTime: %v\n", wait_sec)
 
 	rootStartTime := time.Now()
 
 	wait := sync.WaitGroup{}
-	cushion.Lock()
+	pMux.Lock()
 	start := time.Now()
-	cushion.Release()
+	pMux.Release()
 	for i := 0; i < wait_sec; i++ {
 		wait.Add(1)
 		go func() {
 			defer wait.Done()
 
 			startTime := time.Since(rootStartTime)
-			cushion.Lock()
+			pMux.Lock()
 			elapsed := time.Since(start)
-			cushion.Release()
+			pMux.Release()
 			//next timer start
 			start = time.Now()
 			t.Logf("Start time: %v Elapsed time: %v\n", startTime, elapsed)
 			if elapsed < time.Duration(wait_sec)*time.Second {
-				t.Errorf("Cushion is not waiting for the period")
+				t.Errorf("PaddedMutex is not waiting for the period")
 			}
 		}()
 	}
@@ -56,35 +56,35 @@ func TestCushioningMultiple(t *testing.T) {
 }
 
 func TestDuplicateRelease(t *testing.T) {
-	cushion := exec.InitCushion(1)
-	cushion.Lock()
-	cushion.Release()
+	pMux := exec.InitPaddedMutex(1)
+	pMux.Lock()
+	pMux.Release()
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
 		}
 	}()
-	cushion.Release()
+	pMux.Release()
 }
 
 func TestReleaseBeforeLock(t *testing.T) {
-	cushion := exec.InitCushion(1)
+	pMux := exec.InitPaddedMutex(1)
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
 		}
 	}()
-	cushion.Release()
+	pMux.Release()
 }
 
 func TestReleaseWhileWaiting(t *testing.T) {
-	cushion := exec.InitCushion(1)
-	cushion.Lock()
-	cushion.Release()
+	pMux := exec.InitPaddedMutex(1)
+	pMux.Lock()
+	pMux.Release()
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
 		}
 	}()
-	cushion.Release()
+	pMux.Release()
 }
