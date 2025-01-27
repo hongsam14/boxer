@@ -18,14 +18,17 @@ type VMControlConfig struct {
 }
 
 func (c *VMControlConfig) CheckReservedKeyword() bool {
-	if !strings.ContainsAny(c.StartCmd, "$machine") {
+	// check if the reserved keyword '$machine' is in the command
+	if !strings.Contains(c.StartCmd, "$machine") {
 		return false
 	}
-	if !strings.ContainsAny(c.StopCmd, "$machine") {
+	// check if the reserved keyword "$machine" is in the command
+	if !strings.Contains(c.StopCmd, "$machine") {
 		return false
 	}
-	if !strings.ContainsAny(c.RestoreCmd, "$snapshot") ||
-		!strings.ContainsAny(c.RestoreCmd, "$machine") {
+	// check if the reserved keyword "$snapshot" is in the command
+	if !strings.Contains(c.RestoreCmd, "$snapshot") ||
+		!strings.Contains(c.RestoreCmd, "$machine") {
 		return false
 	}
 	return true
@@ -41,6 +44,7 @@ func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("/etc/boxerd")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("./test")
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err != nil {
