@@ -7,9 +7,9 @@ import (
 
 func TestCommandChecker(t *testing.T) {
 	config := config.VMControlConfig{
-		StartCmd:   "echo $machine",
-		StopCmd:    "echo $machine",
-		RestoreCmd: "echo $machine $snapshot",
+		StartCmd:           "echo $machine",
+		StopCmd:            "echo $machine",
+		RestoreSnapshotCmd: "echo $machine $snapshot",
 	}
 	if !config.CheckReservedKeyword() {
 		t.Errorf("CheckReservedKeyword failed")
@@ -18,9 +18,9 @@ func TestCommandChecker(t *testing.T) {
 
 func TestCommandCheckerFail(t *testing.T) {
 	config := config.VMControlConfig{
-		StartCmd:   "echo machine",
-		StopCmd:    "echo machine",
-		RestoreCmd: "echo machine $snapshot",
+		StartCmd:           "echo machine",
+		StopCmd:            "echo machine",
+		RestoreSnapshotCmd: "echo machine $snapshot",
 	}
 	if config.CheckReservedKeyword() {
 		t.Errorf("CheckReservedKeyword failed")

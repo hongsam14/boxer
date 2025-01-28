@@ -12,9 +12,9 @@ import (
 // - $machine
 // - $snapshot
 type VMControlConfig struct {
-	StartCmd   string `mapstructure:"start_cmd"`
-	StopCmd    string `mapstructure:"stop_cmd"`
-	RestoreCmd string `mapstructure:"restore_cmd"`
+	StartCmd           string `mapstructure:"start_cmd"`
+	StopCmd            string `mapstructure:"stop_cmd"`
+	RestoreSnapshotCmd string `mapstructure:"restore_snapshot_cmd"`
 }
 
 func (c *VMControlConfig) CheckReservedKeyword() bool {
@@ -27,8 +27,8 @@ func (c *VMControlConfig) CheckReservedKeyword() bool {
 		return false
 	}
 	// check if the reserved keyword "$snapshot" is in the command
-	if !strings.Contains(c.RestoreCmd, "$snapshot") ||
-		!strings.Contains(c.RestoreCmd, "$machine") {
+	if !strings.Contains(c.RestoreSnapshotCmd, "$snapshot") ||
+		!strings.Contains(c.RestoreSnapshotCmd, "$machine") {
 		return false
 	}
 	return true
