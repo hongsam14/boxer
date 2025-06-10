@@ -46,6 +46,7 @@ type VMInfoConfig struct {
 	Snapshot string `mapstructure:"snapshot"`
 	IP       string `mapstructure:"ip"`
 	OS       string `mapstructure:"os"`
+	Group    string `mapstructure:"group"` // Group is the group of the VM, used for grouping VMs in the UI
 }
 
 type BoxerConfig struct {
@@ -84,6 +85,13 @@ func (bc *BoxerConfig) Validate() error {
 				Code:   berror.InvalidConfig,
 				Msg:    "error in boxer config.Validate",
 				Origin: fmt.Errorf("VM OS cannot be empty"),
+			}
+		}
+		if vmInfo.Group == "" {
+			return berror.BoxerError{
+				Code:   berror.InvalidConfig,
+				Msg:    "error in boxer config.Validate",
+				Origin: fmt.Errorf("VM group cannot be empty"),
 			}
 		}
 		if vmInfo.IP == "" {
