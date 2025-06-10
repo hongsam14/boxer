@@ -19,6 +19,7 @@ import (
 // It provides a way to wait for the subprocess to finish or cancel it.
 type Promise interface {
 	Pid() int
+	IsExecuted() bool
 	Wait() (int, error)
 	Cancel() error
 }
@@ -31,6 +32,11 @@ type promise struct {
 
 func (p *promise) Pid() int {
 	return p.cmd.Process.Pid
+}
+
+func (p *promise) IsExecuted() bool {
+	// check waitCnt is not set to -1
+	return atomic.LoadInt32(&p.waitCnt) >= 0
 }
 
 // # Run

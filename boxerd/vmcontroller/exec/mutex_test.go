@@ -1,7 +1,7 @@
 package exec_test
 
 import (
-	"boxerd/exec"
+	"boxerd/vmcontroller/exec"
 	"sync"
 	"testing"
 	"time"
