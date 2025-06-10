@@ -1,7 +1,7 @@
 package exec_test
 
 import (
-	"boxerd/exec"
+	"boxerd/vmcontroller/exec"
 	"os"
 	"testing"
 	"time"
@@ -16,6 +16,10 @@ func TestPromise(t *testing.T) {
 	_, err = promise.Wait()
 	if err != nil {
 		t.Errorf("Error while executing promise %v", err)
+	}
+	if !promise.IsExecuted() {
+		t.Errorf("Promise should be executed")
+		return
 	}
 }
 
@@ -49,6 +53,12 @@ func TestPromiseWithoutWait(t *testing.T) {
 		return
 	}
 	defer promise.Cancel()
+
+	// check is the promise is running
+	if !promise.IsExecuted() {
+		t.Errorf("Promise should be executed")
+		return
+	}
 
 	elapsed := time.Since(start)
 	if elapsed > 1*time.Second {
