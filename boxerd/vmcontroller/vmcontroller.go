@@ -4,7 +4,7 @@ import (
 	"boxerd/config"
 	berror "boxerd/error"
 	"boxerd/vmcontroller/exec"
-	"boxerd/vmcontroller/vmstate"
+	"boxerd/vmstate"
 	"fmt"
 	"os"
 	"strings"
