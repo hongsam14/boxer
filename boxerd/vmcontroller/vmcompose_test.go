@@ -1,7 +1,6 @@
-package boxengine_test
+package vmcontroller_test
 
 import (
-	"boxerd/boxengine"
 	"boxerd/config"
 	"boxerd/vmcontroller"
 	"math/rand"
@@ -37,7 +36,7 @@ func TestVMComposeAllocateAndFree(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 3,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return
@@ -148,7 +147,7 @@ func TestVMComposeAllocateNonExistentGroup(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 3,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return
@@ -191,7 +190,7 @@ func TestVMComposeAllocateExceedingLimit(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 2,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return
@@ -257,7 +256,7 @@ func TestVMComposeAllocateMaximumNumberOfVMsGroup(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 3,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return
@@ -323,7 +322,7 @@ func TestVMComposeFreeDuplicatedVMContext(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 2,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return
@@ -382,7 +381,7 @@ func TestVMComposeFreeNonExistentVMContext(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 2,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return
@@ -432,7 +431,7 @@ func TestVMComposeAllocateAndFreeMultipleLoops(t *testing.T) {
 		TimeoutSec:      30,
 		MaxVMOperations: 2,
 	}
-	vmCompose, err := boxengine.NewVMCompose(vmInfoMap, &vmPolicy)
+	vmCompose, err := vmcontroller.NewVMCompose(vmInfoMap, &vmPolicy)
 	if err != nil {
 		t.Fatalf("Failed to create VMCompose: %v", err)
 		return

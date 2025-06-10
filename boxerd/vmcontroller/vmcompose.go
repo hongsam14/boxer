@@ -1,9 +1,8 @@
-package boxengine
+package vmcontroller
 
 import (
 	"boxerd/config"
 	berror "boxerd/error"
-	"boxerd/vmcontroller"
 	"fmt"
 	"sync/atomic"
 )
@@ -14,9 +13,9 @@ import (
 type VMCompose interface {
 	// AllocateVMContext allocates a VMContext from the specified group.
 	// It returns the VMContext if available, or nil if all VMContexts are allocated.
-	AllocateVMContext(groupName string) (*vmcontroller.VMContext, error)
+	AllocateVMContext(groupName string) (*VMContext, error)
 	// FreeVMContext frees a VMContext and adds it back to the group.
-	FreeVMContext(free *vmcontroller.VMContext) error
+	FreeVMContext(free *VMContext) error
 }
 
 type vmCompose struct {
@@ -73,7 +72,7 @@ func NewVMCompose(vmInfoMap map[string]config.VMInfoConfig, vmPolicy *config.VMC
 // It returns the VMContext if available, or nil if all VMContexts are allocated.
 // It also checks if the group exists and if the maximum number of VM operations has been reached.
 // If the maximum number of VM operations is reached, it returns nil without an error.
-func (vc *vmCompose) AllocateVMContext(groupName string) (*vmcontroller.VMContext, error) {
+func (vc *vmCompose) AllocateVMContext(groupName string) (*VMContext, error) {
 	// check if the group exists
 	group, exists := vc.groupMap[groupName]
 	if !exists {
@@ -110,7 +109,7 @@ func (vc *vmCompose) AllocateVMContext(groupName string) (*vmcontroller.VMContex
 // It checks if the group exists and if the VMContext is in the allocated VMContexts.
 // It decrements the current VM operations count after freeing the VMContext.
 // If the group does not exist or the VMContext is not allocated, it returns an error.
-func (vc *vmCompose) FreeVMContext(free *vmcontroller.VMContext) error {
+func (vc *vmCompose) FreeVMContext(free *VMContext) error {
 	// check if the group exists
 	group, exists := vc.groupMap[free.Group()]
 	if !exists {
@@ -139,8 +138,8 @@ func (vc *vmCompose) FreeVMContext(free *vmcontroller.VMContext) error {
 type vmContextGroup struct {
 	groupName       string
 	size            int
-	vmInfoPool      []*vmcontroller.VMContext
-	allocatedVMInfo map[string]*vmcontroller.VMContext
+	vmInfoPool      []*VMContext
+	allocatedVMInfo map[string]*VMContext
 }
 
 // GroupName returns the name of the VMContextGroup.
@@ -160,7 +159,7 @@ func newVMGroup(groupName string, vmInfos ...config.VMInfoConfig) (*vmContextGro
 		}
 	}
 	// allocate the vmInfoPool with the given vmInfos
-	newGroup.vmInfoPool = make([]*vmcontroller.VMContext, len(vmInfos))
+	newGroup.vmInfoPool = make([]*VMContext, len(vmInfos))
 	for idx, vmInfo := range vmInfos {
 		if groupName != vmInfo.Group {
 			return nil, berror.BoxerError{
@@ -169,7 +168,7 @@ func newVMGroup(groupName string, vmInfos ...config.VMInfoConfig) (*vmContextGro
 				Origin: fmt.Errorf("VM %s does not belong to group %s", vmInfo.Name, groupName),
 			}
 		}
-		newGroup.vmInfoPool[idx] = vmcontroller.NewVMContext(vmInfo)
+		newGroup.vmInfoPool[idx] = NewVMContext(vmInfo)
 	}
 	if len(newGroup.vmInfoPool) == 0 {
 		return nil, berror.BoxerError{
@@ -179,7 +178,7 @@ func newVMGroup(groupName string, vmInfos ...config.VMInfoConfig) (*vmContextGro
 		}
 	}
 	// allocate the allocatedVMInfo map
-	newGroup.allocatedVMInfo = make(map[string]*vmcontroller.VMContext)
+	newGroup.allocatedVMInfo = make(map[string]*VMContext)
 	// set the size of the group to the number of VM infos
 	newGroup.size = len(vmInfos)
 	return newGroup, nil
@@ -187,7 +186,7 @@ func newVMGroup(groupName string, vmInfos ...config.VMInfoConfig) (*vmContextGro
 
 // AllocateVMContext allocates a VMContext from the group.
 // It returns the VMContext if available, or nil if all VMContexts are allocated.
-func (vg *vmContextGroup) AllocateVMContext() (*vmcontroller.VMContext, error) {
+func (vg *vmContextGroup) AllocateVMContext() (*VMContext, error) {
 	// get the first VMContext from the pool
 	if len(vg.vmInfoPool) == 0 {
 		// all the VMContexts are allocated, return an nil because there is no VMContext available.
@@ -213,7 +212,7 @@ func (vg *vmContextGroup) AllocateVMContext() (*vmcontroller.VMContext, error) {
 }
 
 // FreeVMContext frees a VMContext and adds it back to the pool.
-func (bg *vmContextGroup) FreeVMContext(vmContext *vmcontroller.VMContext) error {
+func (bg *vmContextGroup) FreeVMContext(vmContext *VMContext) error {
 	// check if the VMContext is in the allocatedVMInfo map
 	if _, exists := bg.allocatedVMInfo[vmContext.Machine()]; !exists {
 		return berror.BoxerError{
@@ -258,7 +257,7 @@ func (bg *vmContextGroup) AppendVMContext(added config.VMInfoConfig) error {
 		}
 	}
 	// add the VMContext to the vmInfoPool
-	addedVMContext := vmcontroller.NewVMContext(added)
+	addedVMContext := NewVMContext(added)
 	bg.vmInfoPool = append(bg.vmInfoPool, addedVMContext)
 	// increase the size of the group
 	bg.size++
