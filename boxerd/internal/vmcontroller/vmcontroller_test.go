@@ -2,7 +2,7 @@ package vmcontroller_test
 
 import (
 	"boxerd/config"
-	"boxerd/vmcontroller"
+	"boxerd/internal/vmcontroller"
 	"boxerd/vmstate"
 	"os"
 	"testing"

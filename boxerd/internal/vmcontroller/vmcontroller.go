@@ -3,7 +3,7 @@ package vmcontroller
 import (
 	"boxerd/config"
 	berror "boxerd/error"
-	"boxerd/vmcontroller/exec"
+	"boxerd/internal/vmcontroller/exec"
 	"boxerd/vmstate"
 	"fmt"
 	"os"
