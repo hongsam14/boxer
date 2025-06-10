@@ -4,6 +4,7 @@ import (
 	"boxerd/config"
 	"boxerd/vmcontroller"
 	"boxerd/vmcontroller/vmstate"
+	"os"
 	"testing"
 	"time"
 )
@@ -33,7 +34,7 @@ func TestVMController(t *testing.T) {
 		TimeoutSec:  300, // Timeout in seconds for the VM control commands
 	}
 	vctx := vmcontroller.NewVMContext(vmInfo)
-	vmController := vmcontroller.NewVMController(&vmControlConfig, &vmPolicy)
+	vmController := vmcontroller.NewVMController(os.Stdin, os.Stdout, &vmControlConfig, &vmPolicy)
 
 	err := vmController.StartVM(vctx)
 	if err != nil {

@@ -26,6 +26,9 @@ type vmController struct {
 	vmControl *config.VMControlConfig
 	vmPolicy  *config.VMControlPolicyConfig
 	mux       *exec.PaddedMutex
+
+	fdin  *os.File // file descriptor for stdin, used for executing commands
+	fdout *os.File // file descriptor for stdout, used for executing commands
 }
 
 // NewVMController creates a new VMController with the given VMControlConfig.
@@ -33,8 +36,15 @@ type vmController struct {
 // It uses the VMControlConfig to execute commands for starting, stopping, and restoring snapshots of the VM.
 // It initializes the padded mutex to prevent concurrent execution of VM control commands.
 // It also uses the VMContext to manage the state and information of the VM.
-func NewVMController(vmControlConfig *config.VMControlConfig, vmPolicy *config.VMControlPolicyConfig) VMController {
+func NewVMController(
+	fdin *os.File,
+	fdout *os.File,
+	vmControlConfig *config.VMControlConfig,
+	vmPolicy *config.VMControlPolicyConfig) VMController {
+
 	return &vmController{
+		fdin:      fdin,
+		fdout:     fdout,
 		vmControl: vmControlConfig,
 		vmPolicy:  vmPolicy,
 		mux:       exec.InitPaddedMutex(vmPolicy.IntervalSec),
@@ -78,7 +88,7 @@ func (vc *vmController) StartVM(vctx *VMContext) (err error) {
 	defer vc.mux.Release()
 
 	// Execute the start command
-	promise, err := exec.Run(os.Stdin, os.Stdout, argv[0], argv[1:]...)
+	promise, err := exec.Run(vc.fdin, vc.fdout, argv[0], argv[1:]...)
 	if err != nil {
 		return berror.BoxerError{
 			Code:   berror.SystemError,
@@ -137,7 +147,7 @@ func (vc *vmController) StopVM(vctx *VMContext) (err error) {
 	vc.mux.Lock()
 	defer vc.mux.Release()
 	// Execute the stop command
-	promise, err := exec.Run(os.Stdin, os.Stdout, argv[0], argv[1:]...)
+	promise, err := exec.Run(vc.fdin, vc.fdout, argv[0], argv[1:]...)
 	if err != nil {
 		return berror.BoxerError{
 			Code:   berror.SystemError,
@@ -190,7 +200,7 @@ func (vc *vmController) RestoreSnapshot(vctx *VMContext) (err error) {
 	vc.mux.Lock()
 	defer vc.mux.Release()
 	// Execute the restore snapshot command
-	promise, err := exec.Run(os.Stdin, os.Stdout, argv[0], argv[1:]...)
+	promise, err := exec.Run(vc.fdin, vc.fdout, argv[0], argv[1:]...)
 	if err != nil {
 		return berror.BoxerError{
 			Code:   berror.SystemError,
