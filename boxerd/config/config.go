@@ -45,7 +45,7 @@ type VMInfoConfig struct {
 
 type BoxerConfig struct {
 	// VMInfo is the configuration for the VM
-	VMInfo VMInfoConfig `mapstructure:"vm_info"`
+	VMInfo map[string]VMInfoConfig `mapstructure:"vm_info"`
 	// VMControl is the configuration for the VM control commands
 	VMControl VMControlConfig `mapstructure:"vm_control"`
 }
@@ -59,40 +59,42 @@ func (bc *BoxerConfig) Validate() error {
 				"$machine and $snapshot"),
 		}
 	}
-	if bc.VMInfo.Name == "" {
-		return berror.BoxerError{
-			Code:   berror.InvalidConfig,
-			Msg:    "error in boxer config.Validate",
-			Origin: fmt.Errorf("VM name cannot be empty"),
+	for _, vmInfo := range bc.VMInfo {
+		if vmInfo.Name == "" {
+			return berror.BoxerError{
+				Code:   berror.InvalidConfig,
+				Msg:    "error in boxer config.Validate",
+				Origin: fmt.Errorf("VM name cannot be empty"),
+			}
 		}
-	}
-	if bc.VMInfo.Snapshot == "" {
-		return berror.BoxerError{
-			Code:   berror.InvalidConfig,
-			Msg:    "error in boxer config.Validate",
-			Origin: fmt.Errorf("VM snapshot cannot be empty"),
+		if vmInfo.Snapshot == "" {
+			return berror.BoxerError{
+				Code:   berror.InvalidConfig,
+				Msg:    "error in boxer config.Validate",
+				Origin: fmt.Errorf("VM snapshot cannot be empty"),
+			}
 		}
-	}
-	if bc.VMInfo.OS == "" {
-		return berror.BoxerError{
-			Code:   berror.InvalidConfig,
-			Msg:    "error in boxer config.Validate",
-			Origin: fmt.Errorf("VM OS cannot be empty"),
+		if vmInfo.OS == "" {
+			return berror.BoxerError{
+				Code:   berror.InvalidConfig,
+				Msg:    "error in boxer config.Validate",
+				Origin: fmt.Errorf("VM OS cannot be empty"),
+			}
 		}
-	}
-	if bc.VMInfo.IP == "" {
-		return berror.BoxerError{
-			Code:   berror.InvalidConfig,
-			Msg:    "error in boxer config.Validate",
-			Origin: fmt.Errorf("VM IP cannot be empty"),
+		if vmInfo.IP == "" {
+			return berror.BoxerError{
+				Code:   berror.InvalidConfig,
+				Msg:    "error in boxer config.Validate",
+				Origin: fmt.Errorf("VM IP cannot be empty"),
+			}
 		}
-	}
-	// check IP format
-	if net.ParseIP(bc.VMInfo.IP) == nil {
-		return berror.BoxerError{
-			Code:   berror.InvalidConfig,
-			Msg:    "error in boxer config.Validate",
-			Origin: fmt.Errorf("VM IP is not a valid IP address"),
+		// check IP format
+		if net.ParseIP(vmInfo.IP) == nil {
+			return berror.BoxerError{
+				Code:   berror.InvalidConfig,
+				Msg:    "error in boxer config.Validate",
+				Origin: fmt.Errorf("VM IP is not a valid IP address"),
+			}
 		}
 	}
 	return nil
