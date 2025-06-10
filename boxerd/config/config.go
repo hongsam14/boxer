@@ -2,9 +2,9 @@ package config
 
 import (
 	berror "boxerd/error"
+	"fmt"
+	"net"
 	"strings"
-
-	"github.com/spf13/viper"
 )
 
 // VMControlConfig is a struct that holds the Commandline for the VM control
@@ -12,9 +12,9 @@ import (
 // - $machine
 // - $snapshot
 type VMControlConfig struct {
-	StartCmd   string `mapstructure:"start_cmd"`
-	StopCmd    string `mapstructure:"stop_cmd"`
-	RestoreCmd string `mapstructure:"restore_cmd"`
+	StartCmd           string `mapstructure:"start_cmd"`
+	StopCmd            string `mapstructure:"stop_cmd"`
+	RestoreSnapshotCmd string `mapstructure:"restore_snapshot_cmd"`
 }
 
 func (c *VMControlConfig) CheckReservedKeyword() bool {
@@ -27,49 +27,73 @@ func (c *VMControlConfig) CheckReservedKeyword() bool {
 		return false
 	}
 	// check if the reserved keyword "$snapshot" is in the command
-	if !strings.Contains(c.RestoreCmd, "$snapshot") ||
-		!strings.Contains(c.RestoreCmd, "$machine") {
+	if !strings.Contains(c.RestoreSnapshotCmd, "$snapshot") ||
+		!strings.Contains(c.RestoreSnapshotCmd, "$machine") {
 		return false
 	}
 	return true
 }
 
-type Config struct {
+type VMInfoConfig struct {
+	// Name is the name of the VM
+	Name string `mapstructure:"name"`
+	// Snapshot is the name of the snapshot
+	Snapshot string `mapstructure:"snapshot"`
+	IP       string `mapstructure:"ip"`
+	OS       string `mapstructure:"os"`
+}
+
+type BoxerConfig struct {
+	// VMInfo is the configuration for the VM
+	VMInfo VMInfoConfig `mapstructure:"vm_info"`
+	// VMControl is the configuration for the VM control commands
 	VMControl VMControlConfig `mapstructure:"vm_control"`
 }
 
-func LoadConfig() (*Config, error) {
-	var cfg *Config
-
-	viper.SetConfigName("config")
-	viper.AddConfigPath("/etc/boxerd")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("./test")
-	viper.SetConfigType("yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, berror.BoxerError{
-			Code:   berror.InvalidConfig,
-			Origin: err,
-			Msg:    "error while reading config",
+func (bc *BoxerConfig) Validate() error {
+	if !bc.VMControl.CheckReservedKeyword() {
+		return berror.BoxerError{
+			Code: berror.InvalidConfig,
+			Msg:  "error in boxer config.Validate",
+			Origin: fmt.Errorf("VM control commands must contain reserved keywords: " +
+				"$machine and $snapshot"),
 		}
 	}
-	cfg = new(Config)
-	err = viper.Unmarshal(cfg)
-	if err != nil {
-		return nil, berror.BoxerError{
+	if bc.VMInfo.Name == "" {
+		return berror.BoxerError{
 			Code:   berror.InvalidConfig,
-			Origin: err,
-			Msg:    "error while unmarshalling config",
+			Msg:    "error in boxer config.Validate",
+			Origin: fmt.Errorf("VM name cannot be empty"),
 		}
 	}
-	//validate the config
-	if !cfg.VMControl.CheckReservedKeyword() {
-		return nil, berror.BoxerError{
+	if bc.VMInfo.Snapshot == "" {
+		return berror.BoxerError{
 			Code:   berror.InvalidConfig,
-			Origin: nil,
-			Msg:    "error while validating config",
+			Msg:    "error in boxer config.Validate",
+			Origin: fmt.Errorf("VM snapshot cannot be empty"),
 		}
 	}
-	return cfg, nil
+	if bc.VMInfo.OS == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in boxer config.Validate",
+			Origin: fmt.Errorf("VM OS cannot be empty"),
+		}
+	}
+	if bc.VMInfo.IP == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in boxer config.Validate",
+			Origin: fmt.Errorf("VM IP cannot be empty"),
+		}
+	}
+	// check IP format
+	if net.ParseIP(bc.VMInfo.IP) == nil {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in boxer config.Validate",
+			Origin: fmt.Errorf("VM IP is not a valid IP address"),
+		}
+	}
+	return nil
 }
