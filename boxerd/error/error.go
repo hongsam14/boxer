@@ -10,6 +10,7 @@ const (
 	InvalidArgument
 	InvalidState
 	InvalidOperation
+	Timeout
 )
 
 type BoxerError struct {
