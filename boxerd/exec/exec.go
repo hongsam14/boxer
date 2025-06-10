@@ -94,6 +94,8 @@ func (p *promise) Wait() (exitCode int, err error) {
 			Origin: err,
 		}
 	}
+	// set the conditional variable to 0 because the process is finished
+	atomic.StoreInt32(&p.waitCnt, 0)
 	exitCode = state.ExitCode()
 	// release the process resource to prevent zombie process
 	err = p.cmd.Process.Release()
