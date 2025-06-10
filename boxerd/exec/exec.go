@@ -94,6 +94,8 @@ func (p *promise) Wait() (exitCode int, err error) {
 			Origin: err,
 		}
 	}
+	// set the conditional variable to 0 because the process is finished
+	atomic.StoreInt32(&p.waitCnt, 0)
 	exitCode = state.ExitCode()
 	// release the process resource to prevent zombie process
 	err = p.cmd.Process.Release()
@@ -156,7 +158,12 @@ func (p *promise) subProcessKiller() error {
 	//
 	// p.cmd.Process.Kill()
 
-	p.cmd.Process.Signal(syscall.SIGINT)
+	err := p.cmd.Process.Signal(syscall.SIGINT)
+	if err != nil {
+		// if the process is not killed by SIGINT, send SIGTERM
+		return p.cmd.Process.Signal(syscall.SIGTERM)
+	}
+	// to prevent process is not killed by SIGINT, send SIGTERM
 	return p.cmd.Process.Signal(syscall.SIGTERM)
 
 	// wait to prevent zombie process (DEPRECATED)
