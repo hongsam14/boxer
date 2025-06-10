@@ -39,6 +39,15 @@ func (c *VMControlConfig) CheckReservedKeyword() bool {
 	return true
 }
 
+// VMPolicyConfig is a struct that holds the policy configuration for the VMControl
+type VMControlPolicyConfig struct {
+	IntervalSec uint `mapstructure:"interval"` // Interval is the interval in seconds for the VM control commands
+	TimeoutSec  uint `mapstructure:"timeout"`  // Timeout is the timeout in seconds for the VM control commands
+}
+
+// VMInfoConfig is a struct that holds the information of the VM
+// It includes the name of the VM, the snapshot name, the IP address, the OS type,
+// and the group of the VM.
 type VMInfoConfig struct {
 	// Name is the name of the VM
 	Name string `mapstructure:"name"`
@@ -54,6 +63,8 @@ type BoxerConfig struct {
 	VMInfo map[string]VMInfoConfig `mapstructure:"vm_info"`
 	// VMControl is the configuration for the VM control commands
 	VMControl VMControlConfig `mapstructure:"vm_control"`
+	// VMControlPolicy is the configuration for the VM control policy
+	VMControlPolicy VMControlPolicyConfig `mapstructure:"vm_control_policy"`
 }
 
 func (bc *BoxerConfig) Validate() error {
