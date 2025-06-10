@@ -24,6 +24,7 @@ type VMController interface {
 
 type vmController struct {
 	vmControl *config.VMControlConfig
+	vmPolicy  *config.VMControlPolicyConfig
 	mux       *exec.PaddedMutex
 }
 
@@ -32,10 +33,11 @@ type vmController struct {
 // It uses the VMControlConfig to execute commands for starting, stopping, and restoring snapshots of the VM.
 // It initializes the padded mutex to prevent concurrent execution of VM control commands.
 // It also uses the VMContext to manage the state and information of the VM.
-func NewVMController(vmControlConfig *config.VMControlConfig) VMController {
+func NewVMController(vmControlConfig *config.VMControlConfig, vmPolicy *config.VMControlPolicyConfig) VMController {
 	return &vmController{
 		vmControl: vmControlConfig,
-		mux:       exec.InitPaddedMutex(1),
+		vmPolicy:  vmPolicy,
+		mux:       exec.InitPaddedMutex(vmPolicy.IntervalSec),
 	}
 }
 
@@ -53,7 +55,6 @@ func (vc *vmController) replaceReservedKeyword(command string, vctx *VMContext) 
 // It checks if the VM is in a stopped state before executing the start command.
 // It sets the VM state to OFFLINE after starting the VM.
 func (vc *vmController) StartVM(vctx *VMContext) (err error) {
-
 	if vctx.State() != vmstate.STOPPED {
 		return berror.BoxerError{
 			Code:   berror.InvalidState,
@@ -71,9 +72,11 @@ func (vc *vmController) StartVM(vctx *VMContext) (err error) {
 			Origin: fmt.Errorf("start command is empty after replacing reserved keywords %v", vc.vmControl.StartCmd),
 		}
 	}
+
 	// lock the padded mutex to prevent concurrent execution of vm control commands
 	vc.mux.Lock()
 	defer vc.mux.Release()
+
 	// Execute the start command
 	promise, err := exec.Run(os.Stdin, os.Stdout, argv[0], argv[1:]...)
 	if err != nil {
@@ -85,7 +88,10 @@ func (vc *vmController) StartVM(vctx *VMContext) (err error) {
 	}
 	// Wait for the command to finish
 	exitCode, err := promise.Wait()
+	// check wait result
 	if err != nil {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.StartVM",
@@ -93,6 +99,8 @@ func (vc *vmController) StartVM(vctx *VMContext) (err error) {
 		}
 	}
 	if exitCode != 0 {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.StartVM",
