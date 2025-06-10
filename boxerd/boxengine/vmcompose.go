@@ -4,11 +4,13 @@ import (
 	"boxerd/config"
 	berror "boxerd/error"
 	"boxerd/vmcontroller"
-	_ "boxerd/vmcontroller/vmstate"
 	"fmt"
 	"sync/atomic"
 )
 
+// VMCompose allocates and Frees VMContexts based on the VMInfoMap and VMPolicy.
+// It manages groups of VMContexts and ensures that the maximum number of VM operations is not exceeded.
+// It provides methods to allocate and free VMContexts from the specified groups.
 type VMCompose interface {
 	// AllocateVMContext allocates a VMContext from the specified group.
 	// It returns the VMContext if available, or nil if all VMContexts are allocated.
@@ -67,6 +69,10 @@ func NewVMCompose(vmInfoMap map[string]config.VMInfoConfig, vmPolicy *config.VMC
 	return newCompose, nil
 }
 
+// AllocateVMContext allocates a VMContext from the specified group.
+// It returns the VMContext if available, or nil if all VMContexts are allocated.
+// It also checks if the group exists and if the maximum number of VM operations has been reached.
+// If the maximum number of VM operations is reached, it returns nil without an error.
 func (vc *vmCompose) AllocateVMContext(groupName string) (*vmcontroller.VMContext, error) {
 	// check if the group exists
 	group, exists := vc.groupMap[groupName]
@@ -101,6 +107,9 @@ func (vc *vmCompose) AllocateVMContext(groupName string) (*vmcontroller.VMContex
 }
 
 // FreeVMContext frees a VMContext and adds it back to the group.
+// It checks if the group exists and if the VMContext is in the allocated VMContexts.
+// It decrements the current VM operations count after freeing the VMContext.
+// If the group does not exist or the VMContext is not allocated, it returns an error.
 func (vc *vmCompose) FreeVMContext(free *vmcontroller.VMContext) error {
 	// check if the group exists
 	group, exists := vc.groupMap[free.Group()]
@@ -151,7 +160,7 @@ func newVMGroup(groupName string, vmInfos ...config.VMInfoConfig) (*vmContextGro
 		}
 	}
 	// allocate the vmInfoPool with the given vmInfos
-	newGroup.vmInfoPool = make([]*vmcontroller.VMContext, 0, len(vmInfos))
+	newGroup.vmInfoPool = make([]*vmcontroller.VMContext, len(vmInfos))
 	for idx, vmInfo := range vmInfos {
 		if groupName != vmInfo.Group {
 			return nil, berror.BoxerError{
