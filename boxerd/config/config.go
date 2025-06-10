@@ -41,8 +41,34 @@ func (c *VMControlConfig) CheckReservedKeyword() bool {
 
 // VMPolicyConfig is a struct that holds the policy configuration for the VMControl
 type VMControlPolicyConfig struct {
-	IntervalSec uint `mapstructure:"interval"` // Interval is the interval in seconds for the VM control commands
-	TimeoutSec  uint `mapstructure:"timeout"`  // Timeout is the timeout in seconds for the VM control commands
+	IntervalSec     uint `mapstructure:"interval"`          // Interval is the interval in seconds for the VM control commands
+	TimeoutSec      uint `mapstructure:"timeout"`           // Timeout is the timeout in seconds for the VM control commands
+	MaxVMOperations uint `mapstructure:"max_vm_operations"` // MaxVMOperations is the maximum number of VM operations that can be performed in parallel
+}
+
+func (c *VMControlPolicyConfig) Validate() error {
+	if c.IntervalSec == 0 {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMControlPolicyConfig Validate",
+			Origin: fmt.Errorf("VM control policy interval cannot be zero"),
+		}
+	}
+	if c.TimeoutSec == 0 {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMControlPolicyConfig Validate",
+			Origin: fmt.Errorf("VM control policy timeout cannot be zero"),
+		}
+	}
+	if c.MaxVMOperations == 0 {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMControlPolicyConfig Validate",
+			Origin: fmt.Errorf("VM control policy max VM operations cannot be zero"),
+		}
+	}
+	return nil
 }
 
 // VMInfoConfig is a struct that holds the information of the VM
@@ -56,6 +82,52 @@ type VMInfoConfig struct {
 	IP       string `mapstructure:"ip"`
 	OS       string `mapstructure:"os"`
 	Group    string `mapstructure:"group"` // Group is the group of the VM, used for grouping VMs in the UI
+}
+
+func (v *VMInfoConfig) Validate() error {
+	if v.Name == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMInfoConfig Validate",
+			Origin: fmt.Errorf("VM name cannot be empty"),
+		}
+	}
+	if v.Snapshot == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMInfoConfig Validate",
+			Origin: fmt.Errorf("VM snapshot cannot be empty"),
+		}
+	}
+	if v.OS == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMInfoConfig Validate",
+			Origin: fmt.Errorf("VM OS cannot be empty"),
+		}
+	}
+	if v.Group == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMInfoConfig Validate",
+			Origin: fmt.Errorf("VM group cannot be empty"),
+		}
+	}
+	if v.IP == "" {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMInfoConfig Validate",
+			Origin: fmt.Errorf("VM IP cannot be empty"),
+		}
+	}
+	if net.ParseIP(v.IP) == nil {
+		return berror.BoxerError{
+			Code:   berror.InvalidConfig,
+			Msg:    "error in VMInfoConfig Validate",
+			Origin: fmt.Errorf("VM IP is not a valid IP address"),
+		}
+	}
+	return nil
 }
 
 type BoxerConfig struct {
@@ -77,49 +149,13 @@ func (bc *BoxerConfig) Validate() error {
 		}
 	}
 	for _, vmInfo := range bc.VMInfo {
-		if vmInfo.Name == "" {
+		if err := vmInfo.Validate(); err != nil {
 			return berror.BoxerError{
 				Code:   berror.InvalidConfig,
 				Msg:    "error in boxer config.Validate",
-				Origin: fmt.Errorf("VM name cannot be empty"),
-			}
-		}
-		if vmInfo.Snapshot == "" {
-			return berror.BoxerError{
-				Code:   berror.InvalidConfig,
-				Msg:    "error in boxer config.Validate",
-				Origin: fmt.Errorf("VM snapshot cannot be empty"),
-			}
-		}
-		if vmInfo.OS == "" {
-			return berror.BoxerError{
-				Code:   berror.InvalidConfig,
-				Msg:    "error in boxer config.Validate",
-				Origin: fmt.Errorf("VM OS cannot be empty"),
-			}
-		}
-		if vmInfo.Group == "" {
-			return berror.BoxerError{
-				Code:   berror.InvalidConfig,
-				Msg:    "error in boxer config.Validate",
-				Origin: fmt.Errorf("VM group cannot be empty"),
-			}
-		}
-		if vmInfo.IP == "" {
-			return berror.BoxerError{
-				Code:   berror.InvalidConfig,
-				Msg:    "error in boxer config.Validate",
-				Origin: fmt.Errorf("VM IP cannot be empty"),
-			}
-		}
-		// check IP format
-		if net.ParseIP(vmInfo.IP) == nil {
-			return berror.BoxerError{
-				Code:   berror.InvalidConfig,
-				Msg:    "error in boxer config.Validate",
-				Origin: fmt.Errorf("VM IP is not a valid IP address"),
+				Origin: fmt.Errorf("invalid VM info config for VM %s: %w", vmInfo.Name, err),
 			}
 		}
 	}
-	return nil
+	return bc.VMControlPolicy.Validate()
 }
