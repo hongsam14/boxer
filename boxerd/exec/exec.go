@@ -158,7 +158,12 @@ func (p *promise) subProcessKiller() error {
 	//
 	// p.cmd.Process.Kill()
 
-	p.cmd.Process.Signal(syscall.SIGINT)
+	err := p.cmd.Process.Signal(syscall.SIGINT)
+	if err != nil {
+		// if the process is not killed by SIGINT, send SIGTERM
+		return p.cmd.Process.Signal(syscall.SIGTERM)
+	}
+	// to prevent process is not killed by SIGINT, send SIGTERM
 	return p.cmd.Process.Signal(syscall.SIGTERM)
 
 	// wait to prevent zombie process (DEPRECATED)
