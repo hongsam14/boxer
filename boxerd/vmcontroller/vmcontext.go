@@ -30,6 +30,11 @@ func (vc *VMContext) OS() string {
 	return vc.info.OS
 }
 
+// Group returns the group name of the VM.
+func (vc *VMContext) Group() string {
+	return vc.info.Group
+}
+
 // State returns the current state of the VM.
 func (vc *VMContext) State() vmstate.VMState {
 	return vc.state
