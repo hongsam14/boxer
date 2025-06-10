@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+const (
+	MACHINE_KEYWORD  = "$machine"
+	SNAPSHOT_KEYWORD = "$snapshot"
+)
+
 // VMControlConfig is a struct that holds the Commandline for the VM control
 // reserved keyword:
 // - $machine
@@ -19,16 +24,16 @@ type VMControlConfig struct {
 
 func (c *VMControlConfig) CheckReservedKeyword() bool {
 	// check if the reserved keyword '$machine' is in the command
-	if !strings.Contains(c.StartCmd, "$machine") {
+	if !strings.Contains(c.StartCmd, MACHINE_KEYWORD) {
 		return false
 	}
 	// check if the reserved keyword "$machine" is in the command
-	if !strings.Contains(c.StopCmd, "$machine") {
+	if !strings.Contains(c.StopCmd, MACHINE_KEYWORD) {
 		return false
 	}
 	// check if the reserved keyword "$snapshot" is in the command
-	if !strings.Contains(c.RestoreSnapshotCmd, "$snapshot") ||
-		!strings.Contains(c.RestoreSnapshotCmd, "$machine") {
+	if !strings.Contains(c.RestoreSnapshotCmd, SNAPSHOT_KEYWORD) ||
+		!strings.Contains(c.RestoreSnapshotCmd, MACHINE_KEYWORD) {
 		return false
 	}
 	return true
