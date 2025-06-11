@@ -117,8 +117,8 @@ func (vc *vmController) StartVM(vctx *VMContext) (err error) {
 			Origin: fmt.Errorf("start command exited with non-zero exit code %d", exitCode),
 		}
 	}
-	// Set the VM state to OFFLINE
-	vctx.setState(vmstate.OFFLINE)
+	// Set the VM state to RUNNING after starting the VM
+	vctx.setState(vmstate.RUNNING)
 	return nil
 }
 
@@ -126,11 +126,11 @@ func (vc *vmController) StartVM(vctx *VMContext) (err error) {
 // It checks if the VM is in an active state before executing the stop command.
 // It sets the VM state to STOPPED after stopping the VM.
 func (vc *vmController) StopVM(vctx *VMContext) (err error) {
-	if vctx.State() < vmstate.OFFLINE {
+	if vctx.State() != vmstate.RUNNING {
 		return berror.BoxerError{
 			Code:   berror.InvalidState,
 			Msg:    "error while vmcontroller.StopVM",
-			Origin: fmt.Errorf("VM is not in an active state. current state: %s, expected: bigger than %s", vctx.State(), vmstate.OFFLINE),
+			Origin: fmt.Errorf("VM is not in an active state. current state: %s, expected: bigger than %s", vctx.State(), vmstate.RUNNING),
 		}
 	}
 
@@ -149,6 +149,9 @@ func (vc *vmController) StopVM(vctx *VMContext) (err error) {
 	// Execute the stop command
 	promise, err := exec.Run(vc.fdin, vc.fdout, argv[0], argv[1:]...)
 	if err != nil {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
+		// return an error if the command failed to execute
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.StopVM",
@@ -158,6 +161,9 @@ func (vc *vmController) StopVM(vctx *VMContext) (err error) {
 	// Wait for the command to finish
 	exitCode, err := promise.Wait()
 	if err != nil {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
+		// return an error if the command failed to finish
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.StopVM",
@@ -165,6 +171,9 @@ func (vc *vmController) StopVM(vctx *VMContext) (err error) {
 		}
 	}
 	if exitCode != 0 {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
+		// return an error if the command exited with a non-zero exit code
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.StopVM",
@@ -202,6 +211,9 @@ func (vc *vmController) RestoreSnapshot(vctx *VMContext) (err error) {
 	// Execute the restore snapshot command
 	promise, err := exec.Run(vc.fdin, vc.fdout, argv[0], argv[1:]...)
 	if err != nil {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
+		// return an error if the command failed to execute
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.RestoreSnapshot",
@@ -212,6 +224,9 @@ func (vc *vmController) RestoreSnapshot(vctx *VMContext) (err error) {
 	// Wait for the command to finish
 	exitCode, err := promise.Wait()
 	if err != nil {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
+		// return an error if the command failed to finish
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.RestoreSnapshot",
@@ -219,6 +234,9 @@ func (vc *vmController) RestoreSnapshot(vctx *VMContext) (err error) {
 		}
 	}
 	if exitCode != 0 {
+		// change the vm state to error state if the command failed
+		vctx.setState(vmstate.ERROR)
+		// return an error if the command exited with a non-zero exit code
 		return berror.BoxerError{
 			Code:   berror.SystemError,
 			Msg:    "error while vmcontroller.RestoreSnapshot",
