@@ -17,9 +17,9 @@ const (
 // - $machine
 // - $snapshot
 type VMControlConfig struct {
-	StartCmd           string `mapstructure:"start_cmd"`
-	StopCmd            string `mapstructure:"stop_cmd"`
-	RestoreSnapshotCmd string `mapstructure:"restore_snapshot_cmd"`
+	StartCmd           string `mapstructure:"start_cmd" yaml:"start_cmd"`
+	StopCmd            string `mapstructure:"stop_cmd" yaml:"stop_cmd"`
+	RestoreSnapshotCmd string `mapstructure:"restore_snapshot_cmd" yaml:"restore_snapshot_cmd"`
 }
 
 func (c *VMControlConfig) CheckReservedKeyword() bool {
@@ -41,9 +41,9 @@ func (c *VMControlConfig) CheckReservedKeyword() bool {
 
 // VMPolicyConfig is a struct that holds the policy configuration for the VMControl
 type VMControlPolicyConfig struct {
-	IntervalSec     uint `mapstructure:"interval"`          // Interval is the interval in seconds for the VM control commands
-	TimeoutSec      uint `mapstructure:"timeout"`           // Timeout is the timeout in seconds for the VM control commands
-	MaxVMOperations uint `mapstructure:"max_vm_operations"` // MaxVMOperations is the maximum number of VM operations that can be performed in parallel
+	IntervalSec     uint `mapstructure:"interval" yaml:"interval"`                   // Interval is the interval in seconds for the VM control commands
+	TimeoutSec      uint `mapstructure:"timeout" yaml:"timeout"`                     // Timeout is the timeout in seconds for the VM control commands
+	MaxVMOperations uint `mapstructure:"max_vm_operations" yaml:"max_vm_operations"` // MaxVMOperations is the maximum number of VM operations that can be performed in parallel
 }
 
 func (c *VMControlPolicyConfig) Validate() error {
@@ -76,12 +76,12 @@ func (c *VMControlPolicyConfig) Validate() error {
 // and the group of the VM.
 type VMInfoConfig struct {
 	// Name is the name of the VM
-	Name string `mapstructure:"name"`
+	Name string `mapstructure:"name" yaml:"name"`
 	// Snapshot is the name of the snapshot
-	Snapshot string `mapstructure:"snapshot"`
-	IP       string `mapstructure:"ip"`
-	OS       string `mapstructure:"os"`
-	Group    string `mapstructure:"group"` // Group is the group of the VM, used for grouping VMs in the UI
+	Snapshot string `mapstructure:"snapshot" yaml:"snapshot"`
+	IP       string `mapstructure:"ip" yaml:"ip"`       // IP is the IP address of the VM
+	OS       string `mapstructure:"os" yaml:"os"`       // OS is the operating system of the VM
+	Group    string `mapstructure:"group" yaml:"group"` // Group is the group of the VM, used for grouping VMs in the UI
 }
 
 func (v *VMInfoConfig) Validate() error {
@@ -132,11 +132,11 @@ func (v *VMInfoConfig) Validate() error {
 
 type BoxerConfig struct {
 	// VMInfo is the configuration for the VM
-	VMInfo map[string]VMInfoConfig `mapstructure:"vm_info"`
+	VMInfo map[string]VMInfoConfig `mapstructure:"vm_info" yaml:"vm_info"`
 	// VMControl is the configuration for the VM control commands
-	VMControl VMControlConfig `mapstructure:"vm_control"`
+	VMControl VMControlConfig `mapstructure:"vm_control" yaml:"vm_control"`
 	// VMControlPolicy is the configuration for the VM control policy
-	VMControlPolicy VMControlPolicyConfig `mapstructure:"vm_control_policy"`
+	VMControlPolicy VMControlPolicyConfig `mapstructure:"vm_control_policy" yaml:"vm_control_policy"`
 }
 
 func (bc *BoxerConfig) Validate() error {
