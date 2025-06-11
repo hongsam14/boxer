@@ -6,6 +6,7 @@ type BoxerErrorCode int
 
 const (
 	SystemError BoxerErrorCode = iota
+	InternalError
 	InvalidConfig
 	InvalidArgument
 	InvalidState
