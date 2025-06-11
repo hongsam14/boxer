@@ -54,11 +54,21 @@ func NewVMController(
 // replaceReservedKeyword replaces the reserved keywords in the command with the actual values from the VMContext.
 // It replaces the $machine keyword with the name of the VM and the $snapshot keyword with the name of the snapshot.
 func (vc *vmController) replaceReservedKeyword(command string, vctx *VMContext) (argvs []string) {
-	// replace the reserved keywords in the command
-	command = strings.ReplaceAll(command, config.MACHINE_KEYWORD, vctx.Machine())
-	command = strings.ReplaceAll(command, config.SNAPSHOT_KEYWORD, vctx.Snapshot())
-	// split the command into arguments
-	return strings.Split(command, " ")
+	if vctx == nil {
+		return nil
+	}
+	if command == "" {
+		return nil
+	}
+	// split command first, and then replace the reserved keywords
+	sourceArgvs := strings.Split(command, " ")
+	// replace reserved keywords in the command
+	retArgvs := make([]string, len(sourceArgvs))
+	for i, arg := range sourceArgvs {
+		retArgvs[i] = strings.ReplaceAll(arg, config.MACHINE_KEYWORD, fmt.Sprintf("%s", vctx.Machine()))
+		retArgvs[i] = strings.ReplaceAll(retArgvs[i], config.SNAPSHOT_KEYWORD, fmt.Sprintf("%s", vctx.Snapshot()))
+	}
+	return retArgvs
 }
 
 // StartVM starts the VM with the given context.
