@@ -140,7 +140,7 @@ func (vc *vmController) StopVM(vctx *VMContext) (err error) {
 		return berror.BoxerError{
 			Code:   berror.InvalidState,
 			Msg:    "error while vmcontroller.StopVM",
-			Origin: fmt.Errorf("VM is not in an active state. current state: %s, expected: bigger than %s", vctx.State(), vmstate.RUNNING),
+			Origin: fmt.Errorf("VM is not in an active state. current state: %s, expected: %s", vctx.State(), vmstate.RUNNING),
 		}
 	}
 
