@@ -1,7 +1,7 @@
 package boxer_test
 
 import (
-	"boxerd/boxer"
+	boxer "boxerd/boxerclient"
 	"boxerd/config"
 	"os"
 	"testing"
