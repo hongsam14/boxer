@@ -1,13 +1,14 @@
 package vmcontroller
 
 import (
-	"boxerd/config"
-	berror "boxerd/error"
-	"boxerd/internal/vmcontroller/exec"
-	"boxerd/vmstate"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/hongsam14/boxer/config"
+	berror "github.com/hongsam14/boxer/error"
+	"github.com/hongsam14/boxer/internal/vmcontroller/exec"
+	"github.com/hongsam14/boxer/vmstate"
 )
 
 // VMController is an interface that defines the methods for controlling a VM.

@@ -1,10 +1,11 @@
 package exec_test
 
 import (
-	"boxerd/internal/vmcontroller/exec"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/hongsam14/boxer/internal/vmcontroller/exec"
 )
 
 func TestPromise(t *testing.T) {

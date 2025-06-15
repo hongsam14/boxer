@@ -1,4 +1,4 @@
-module boxerd
+module github.com/hongsam14/boxer
 
 go 1.23.3
 

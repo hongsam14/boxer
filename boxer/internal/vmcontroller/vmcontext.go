@@ -1,8 +1,8 @@
 package vmcontroller
 
 import (
-	"boxerd/config"
-	"boxerd/vmstate"
+	"github.com/hongsam14/boxer/config"
+	"github.com/hongsam14/boxer/vmstate"
 )
 
 type VMContext struct {

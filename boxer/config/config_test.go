@@ -1,8 +1,9 @@
 package config_test
 
 import (
-	"boxerd/config"
 	"testing"
+
+	"github.com/hongsam14/boxer/config"
 )
 
 func TestCommandChecker(t *testing.T) {

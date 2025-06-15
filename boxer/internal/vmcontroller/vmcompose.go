@@ -1,10 +1,11 @@
 package vmcontroller
 
 import (
-	"boxerd/config"
-	berror "boxerd/error"
 	"fmt"
 	"sync/atomic"
+
+	"github.com/hongsam14/boxer/config"
+	berror "github.com/hongsam14/boxer/error"
 )
 
 // VMCompose allocates and Frees VMContexts based on the VMInfoMap and VMPolicy.

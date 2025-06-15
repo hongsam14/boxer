@@ -1,11 +1,12 @@
 package exec
 
 import (
-	"boxerd/error"
 	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/hongsam14/boxer/error"
 )
 
 type PaddedMutex struct {

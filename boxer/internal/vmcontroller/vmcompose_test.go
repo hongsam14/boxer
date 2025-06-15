@@ -1,10 +1,11 @@
 package vmcontroller_test
 
 import (
-	"boxerd/config"
-	"boxerd/internal/vmcontroller"
 	"math/rand"
 	"testing"
+
+	"github.com/hongsam14/boxer/config"
+	"github.com/hongsam14/boxer/internal/vmcontroller"
 )
 
 func TestVMComposeAllocateAndFree(t *testing.T) {

@@ -1,8 +1,8 @@
 package boxer
 
 import (
-	"boxerd/internal/vmcontroller"
-	"boxerd/vmstate"
+	"github.com/hongsam14/boxer/internal/vmcontroller"
+	"github.com/hongsam14/boxer/vmstate"
 )
 
 // BoxerOp is used to define the operation to be performed by the boxer.

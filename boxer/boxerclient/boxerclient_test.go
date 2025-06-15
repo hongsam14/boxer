@@ -1,11 +1,12 @@
 package boxer_test
 
 import (
-	boxer "boxerd/boxerclient"
-	"boxerd/config"
 	"os"
 	"testing"
 	"time"
+
+	boxer "github.com/hongsam14/boxer/boxerclient"
+	"github.com/hongsam14/boxer/config"
 )
 
 var testConfig = &config.BoxerConfig{

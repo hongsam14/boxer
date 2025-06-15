@@ -1,10 +1,11 @@
 package exec_test
 
 import (
-	"boxerd/internal/vmcontroller/exec"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/hongsam14/boxer/internal/vmcontroller/exec"
 
 	"math/rand"
 )

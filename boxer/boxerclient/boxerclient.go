@@ -1,18 +1,19 @@
 package boxer
 
 import (
-	"boxerd/config"
-	berror "boxerd/error"
-	"boxerd/internal/vmcontroller"
 	"fmt"
 	"os"
+
+	"github.com/hongsam14/boxer/config"
+	berror "github.com/hongsam14/boxer/error"
+	"github.com/hongsam14/boxer/internal/vmcontroller"
 )
 
 // BoxerClient represents a request to perform an operation on a Box.
 type BoxerClient interface {
 	// Balloc allocates a Box for the given group.
 	// It returns a Box instance or an error if allocation fails.
-	// Check error code in boxerd/error by using berror.Is(err, berror.Full)
+	// Check error code in github.com/hongsam14/boxer/error by using berror.Is(err, berror.Full)
 	Balloc(group string) (Box, error)
 	// Bfree frees the allocated Box.
 	// It returns an error if the Box cannot be freed.
@@ -69,7 +70,7 @@ func (bc *boxerClient) generateContextPoolKey(group, machine string) string {
 
 // Balloc allocates a Box for the given group.
 // It returns a Box instance or an error if allocation fails.
-// Check error code in boxerd/error by using berror.Is(err, berror.Full)
+// Check error code in github.com/hongsam14/boxer/error by using berror.Is(err, berror.Full)
 func (bc *boxerClient) Balloc(group string) (Box, error) {
 	// check validate the group parameter
 	if group == "" {

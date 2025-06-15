@@ -1,12 +1,13 @@
 package vmcontroller_test
 
 import (
-	"boxerd/config"
-	"boxerd/internal/vmcontroller"
-	"boxerd/vmstate"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/hongsam14/boxer/config"
+	"github.com/hongsam14/boxer/internal/vmcontroller"
+	"github.com/hongsam14/boxer/vmstate"
 )
 
 func TestVMController(t *testing.T) {

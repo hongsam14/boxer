@@ -1,10 +1,11 @@
 package config
 
 import (
-	berror "boxerd/error"
 	"fmt"
 	"net"
 	"strings"
+
+	berror "github.com/hongsam14/boxer/error"
 )
 
 const (
