@@ -2,7 +2,7 @@ package vmcontroller
 
 import (
 	"boxerd/config"
-	"boxerd/vmcontroller/vmstate"
+	"boxerd/vmstate"
 )
 
 type VMContext struct {
@@ -28,6 +28,11 @@ func (vc *VMContext) IP() string {
 // OS returns the operating system of the VM.
 func (vc *VMContext) OS() string {
 	return vc.info.OS
+}
+
+// Group returns the group name of the VM.
+func (vc *VMContext) Group() string {
+	return vc.info.Group
 }
 
 // State returns the current state of the VM.

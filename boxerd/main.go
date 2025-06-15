@@ -1,4 +1,4 @@
-package boxerd
+package main
 
 import (
 	"fmt"

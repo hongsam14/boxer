@@ -2,8 +2,8 @@ package vmcontroller_test
 
 import (
 	"boxerd/config"
-	"boxerd/vmcontroller"
-	"boxerd/vmcontroller/vmstate"
+	"boxerd/internal/vmcontroller"
+	"boxerd/vmstate"
 	"os"
 	"testing"
 	"time"
@@ -41,7 +41,7 @@ func TestVMController(t *testing.T) {
 		t.Errorf("StartVM failed: %v", err)
 		return
 	}
-	if vctx.State() != vmstate.OFFLINE {
+	if vctx.State() != vmstate.RUNNING {
 		t.Errorf("Expected VM state to be OFFLINE, got %s", vctx.State())
 		return
 	}
