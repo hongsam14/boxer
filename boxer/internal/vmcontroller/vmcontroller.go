@@ -255,6 +255,6 @@ func (vc *vmController) RestoreSnapshot(vctx *VMContext) (err error) {
 		}
 	}
 	// Set the VM state to STOPPED after restoring snapshot
-	vctx.setState(vmstate.STOPPED)
+	vctx.setState(vmstate.RUNNING)
 	return nil
 }
